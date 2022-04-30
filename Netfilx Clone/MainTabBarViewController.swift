@@ -23,15 +23,15 @@ class MainTabBarViewController: UITabBarController {
         vc1.tabBarItem.image = UIImage(systemName: "house")
         vc2.tabBarItem.image = UIImage(systemName: "play.circle")
         vc3.tabBarItem.image = UIImage(systemName: "magnifyingglass")
-        vc4.tabBarItem.image = UIImage(systemName: "arrow.down.forward.square")
+        vc4.tabBarItem.image = UIImage(systemName: "arrow.down.to.line")
         
 //        Assign label color to tint color of all tabBar items.
         tabBar.tintColor = .label        
         
-        vc1.title = "Home"
-        vc2.title = "Comming Soon"
-        vc3.title = "Top Search"
-        vc4.title = "Downloads"
+        vc1.title = "首頁"
+        vc2.title = "即將上線"
+        vc3.title = "搜尋"
+        vc4.title = "下載清單"
         
         setViewControllers([vc1,vc2,vc3,vc4], animated: true)
         
