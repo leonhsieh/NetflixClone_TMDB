@@ -9,6 +9,9 @@ import UIKit
 
 class HomeViewController: UIViewController {
     
+    //將title的文本內容放在array中
+    let sectionTitles: [String] = ["現正熱播", "最新發行", "即將上映", "重新回味"]
+    
     
 //    使用匿名Closure Pattern
     private let homeFeedTable: UITableView = {
@@ -26,6 +29,7 @@ class HomeViewController: UIViewController {
         
         homeFeedTable.delegate = self
         homeFeedTable.dataSource = self
+        
         configureNavbar()
 
         //設定tableHeader
@@ -34,10 +38,11 @@ class HomeViewController: UIViewController {
         homeFeedTable.tableHeaderView = headerView
     }
     
-    // TODO: 查明為何leftBarButtonItem位置不會靠左
+    // TODO: 修正navBarLeftItem位置
     private func configureNavbar(){
         var image = UIImage(named: "netflixLogo")
-        image = image?.withRenderingMode(.alwaysOriginal)
+//        var image = UIImage(systemName: "network")
+        image = image?.withRenderingMode(.alwaysOriginal)        
         
         navigationItem.leftBarButtonItem = UIBarButtonItem(image: image, style: .done, target: self, action: nil)
 
@@ -60,7 +65,7 @@ class HomeViewController: UIViewController {
 extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
     
     func numberOfSections(in tableView: UITableView) -> Int {
-        return 3
+        return sectionTitles.count
     }
     
     //設定TableView的行數
@@ -84,11 +89,47 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
         return 40
     }
     
+    //使用willDisplayHeaderView可以預先載入動態資料，讓view的生命週期更完整
+    func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {
+        guard let header = view as? UITableViewHeaderFooterView else { return }
+
+        header.textLabel?.font = .systemFont(ofSize: 18, weight: .semibold)
+        header.textLabel?.frame = CGRect(x: header.bounds.origin.x + 20, y: header.bounds.origin.y, width: 100, height: header.bounds.height)
+        header.textLabel?.textColor = .white
+
+    }
+    
+    //雖然viewForHeaderInSection就能完成label的設定工作，但這比較適合沒有牽涉到API或networking的label內容
+    /*
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        let header = UIView()
+        let headerLabel = UILabel(frame: CGRect(x: header.bounds.origin.x + 20, y: header.bounds.origin.y, width: 100, height: header.bounds.height))
+        
+        headerLabel.font = .systemFont(ofSize: 18, weight: .semibold)
+        headerLabel.text = sectionTitles[section]
+        headerLabel.textColor = .white
+        headerLabel.sizeToFit()
+        
+        header.addSubview(headerLabel)
+//        header.backgroundColor = .red
+        return header
+    }
+     */
+    
+    
+    //回傳各Section的標題
+    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        return sectionTitles[section]
+    }
+    
+    //設定navBar滑動效果
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         let  defaultOffset = view.safeAreaInsets.top
         
+        //往上滑動的值＝往下捲動的值＋
         let offset = scrollView.contentOffset.y + defaultOffset
         
+        //設定navBar隨著頁面往下捲動，當contenView碰到navBar時，朝上移動
         navigationController?.navigationBar.transform = .init(translationX: 0, y: min(0, -offset))
         
     }
