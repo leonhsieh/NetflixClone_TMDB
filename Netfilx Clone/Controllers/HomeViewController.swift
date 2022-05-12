@@ -9,8 +9,8 @@ import UIKit
 
 class HomeViewController: UIViewController {
     
-    //將title的文本內容放在array中
-    let sectionTitles: [String] = ["現正熱播", "最新發行", "即將上映", "重新回味"]
+    //將Section的標題內容放在array中
+    let sectionTitles: [String] = ["大家都在看的電影","熱門影集","現正熱播","即將上映" ,"最高評分"]
     
     
 //    使用匿名Closure Pattern
@@ -32,27 +32,14 @@ class HomeViewController: UIViewController {
         
         configureNavbar()
 
-        //設定tableHeader
+        //設定tableHeader尺寸
         let headerView = HeroHeaderUIView(frame: CGRect(x: 0, y: 0, width: view.bounds.width, height: 450))
         
         homeFeedTable.tableHeaderView = headerView
-    }
-    
-    // TODO: 修正navBarLeftItem位置
-    private func configureNavbar(){
-        var image = UIImage(named: "netflixLogo")
-//        var image = UIImage(systemName: "network")
-        image = image?.withRenderingMode(.alwaysOriginal)        
         
-        navigationItem.leftBarButtonItem = UIBarButtonItem(image: image, style: .done, target: self, action: nil)
-
-        navigationItem.rightBarButtonItems = [
-            UIBarButtonItem(image: UIImage(systemName: "person.crop.circle"), style: .done, target: self, action: nil),
-            UIBarButtonItem(image: UIImage(systemName: "airplayvideo"), style: .done, target: self, action: nil)
-        ]
-        navigationController?.navigationBar.tintColor = .white
+        fetchData()
+        
     }
-    
     
     //設定TableView的大小與螢幕相同
     override func viewDidLayoutSubviews() {
@@ -60,6 +47,67 @@ class HomeViewController: UIViewController {
         homeFeedTable.frame = view.bounds
     }
 
+//    MARK: 設定NavBar
+    private func configureNavbar(){
+        var image = UIImage(named: "netflixLogo")//為了能設定圖片的renderMode，將容器設為變數
+        
+        image = image?.withRenderingMode(.alwaysOriginal)//強迫iOS使用原本的圖片
+        
+        navigationItem.leftBarButtonItem = UIBarButtonItem(image: image,
+                                                           style: .done,
+                                                           target: self,
+                                                           action: nil)
+
+        navigationItem.rightBarButtonItems = [
+            UIBarButtonItem(image: UIImage(systemName: "person.crop.circle"),
+                            style: .done,
+                            target: self,
+                            action: nil),
+            UIBarButtonItem(image: UIImage(systemName: "airplayvideo"),
+                            style: .done,
+                            target: self,
+                            action: nil)
+        ]
+        
+        navigationController?.navigationBar.tintColor = .white
+    }
+    
+    private func fetchData() {
+//        APIService.shared.getTrendingMovies { results in
+//            switch results {
+//            case .success(let movies)://TODO: 這是什麼宣告法？
+//                print(movies)
+//            case .failure(let error):
+//                print(error)
+//            }
+//        }
+        
+//        APIService.shared.getTrendingTVs { results in
+//            switch results {
+//            case .success(let tvs):
+//                print(tvs)
+//            case .failure(let error):
+//                print(error)
+//            }
+//        }
+        
+//        APIService.shared.getUpComingMovies { results in
+//            switch results {
+//            case .success(let movies):
+//                print(movies)
+//            case .failure(let error):
+//                print(error)
+//            }
+//        }
+        
+//        APIService.shared.getPopularMovies { _ in
+//
+//        }
+        
+        APIService.shared.getTopRatedMovies { _ in
+             
+        }
+    }
 }
 
 extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
@@ -94,12 +142,16 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
         guard let header = view as? UITableViewHeaderFooterView else { return }
 
         header.textLabel?.font = .systemFont(ofSize: 18, weight: .semibold)
-        header.textLabel?.frame = CGRect(x: header.bounds.origin.x + 20, y: header.bounds.origin.y, width: 100, height: header.bounds.height)
+        header.textLabel?.frame = CGRect(x: header.bounds.origin.x + 20,
+                                         y: header.bounds.origin.y,
+                                         width: 100,
+                                         height: header.bounds.height)
         header.textLabel?.textColor = .white
+        header.textLabel?.text = header.textLabel?.text?.capitalizeFistLetter()
 
     }
     
-    //雖然viewForHeaderInSection就能完成label的設定工作，但這比較適合沒有牽涉到API或networking的label內容
+    // NOTE: 雖然viewForHeaderInSection就能完成label的設定工作，但這比較適合沒有牽涉到API或networking的label內容
     /*
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         let header = UIView()
@@ -126,7 +178,7 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         let  defaultOffset = view.safeAreaInsets.top
         
-        //往上滑動的值＝往下捲動的值＋
+        //navBar往上滑動的值＝畫面捲動的Y值＋原本的offset
         let offset = scrollView.contentOffset.y + defaultOffset
         
         //設定navBar隨著頁面往下捲動，當contenView碰到navBar時，朝上移動

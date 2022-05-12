@@ -9,9 +9,33 @@ import UIKit
 
 class HeroHeaderUIView: UIView {
     
-    //加入一個Frame
-
-    //加入按鈕：播放鍵及下載鍵
+    //0:先init
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        addSubview(heroImageView)
+        
+        addGradient()
+        addSubview(playButton)
+        addSubview(downloadButton)
+//        addSubview(addToListButton)
+        applyConstraints()
+    }
+    //0:同時避免錯誤
+    required init?(coder: NSCoder) {
+        fatalError()
+    }
+    
+    //1.在frame內加入UIImageView
+    private let heroImageView: UIImageView = {
+        let imageView = UIImageView()
+        
+        imageView.contentMode = .scaleAspectFit//設定imageView內的圖片依view尺寸放大
+        imageView.clipsToBounds = true//讓subview的尺寸不超出superview
+        imageView.image = UIImage(named: "heroImage")
+        return imageView
+    }()
+    
+    //加入下載鍵按鈕
     private let downloadButton: UIButton = {
         let button = UIButton()
         button.setTitle("下載", for: .normal)
@@ -23,64 +47,53 @@ class HeroHeaderUIView: UIView {
         return button
     }()
     
-    
+    //加入播放鍵按鈕
     private let playButton: UIButton = {
-        
         let button = UIButton()
         button.setTitle("播放", for: .normal)
         button.layer.borderColor = UIColor.white.cgColor
         button.layer.cornerRadius = 5
         button.layer.borderWidth = 1
-        //禁用AutoResizing遮罩以使用約束
-        button.translatesAutoresizingMaskIntoConstraints = false
-         
+        button.translatesAutoresizingMaskIntoConstraints = false//禁用AutoResizing遮罩以使用約束
         return button
     }()
-
-    //在frame內加入UIImageView
-    private let heroImageView: UIImageView = {
-        let imageView = UIImageView()
-        
-        //設定imageView內的圖片依view尺寸放大
-        imageView.contentMode = .scaleAspectFit
-        
-        //讓subview的尺寸不會超出view
-        imageView.clipsToBounds = true
-        imageView.image = UIImage(named: "heroImage")
-        return imageView
-    }()
     
+    private let addToListButton: UIButton = {
+        let button = UIButton()
+        button.setTitle("我的片單", for: .normal)
+        button.layer.cornerRadius = 5
+        button.layer.borderWidth = 1
+        button.translatesAutoresizingMaskIntoConstraints = false
+       return button
+    }()
 
     //幫header image加入漸層效果
-    //TODO: 讓漸層色符合當前環境色
     private func addGradient() {
         let gradientLayer = CAGradientLayer()
+        
+        //使用兩個顏色作為漸層色：clear及系統背景色
         gradientLayer.colors = [
             UIColor.clear.cgColor,
             UIColor.systemBackground.cgColor,
         ]
+        
+        //要加入frame漸層才能顯示
         gradientLayer.frame = bounds
         layer.addSublayer(gradientLayer)
-        
     }
     
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        addSubview(heroImageView)
-        
-        addGradient()
-        addSubview(playButton)
-        addSubview(downloadButton)
-        applyConstraints()
-    }
-    
+
+    //加入約束
     private func applyConstraints(){
         
         //設定播放鍵的約束
         let playButtonConstraint = [
-            //在英文國家中，leading方向代表左邊，但阿拉伯語係國家則是從右邊開始，使用leading作為約束方式可以讓App更有在地性
+            
+            //在英文系及中文系國家中，leading方向代表左邊，
+            //但阿拉伯語係國家則是從右邊開始，使用leading作為約束方式可以讓App更有在地性
             playButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 70),
-            //使用負數作為constant，讓按鈕從下往上對齊（正數的話是從上往下margin）
+            
+            //使用負數，讓按鈕從下往上對齊（正數的話是從上往下margin）
             playButton.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -50),
             playButton.widthAnchor.constraint(equalToConstant: 110)
         ]
@@ -91,7 +104,17 @@ class HeroHeaderUIView: UIView {
             downloadButton.widthAnchor.constraint(equalToConstant: 110)
         ]
         
-        //啟動上面的約束
+        //TODO: 將三個按鈕加入StackView並均分排列
+        /*
+        let addToListButtonContraint = [
+            addToListButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 70),
+            addToListButton.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -50),
+            addToListButton.widthAnchor.constraint(equalToConstant: 110)
+        ]
+        */
+        
+        
+        //啟動約束
         NSLayoutConstraint.activate(downloadButtonConstraint)
         NSLayoutConstraint.activate(playButtonConstraint)
     }
@@ -102,7 +125,4 @@ class HeroHeaderUIView: UIView {
         heroImageView.frame = bounds
     }
     
-    required init?(coder: NSCoder) {
-        fatalError()
-    }
 }
