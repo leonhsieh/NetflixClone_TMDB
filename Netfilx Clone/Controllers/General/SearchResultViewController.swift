@@ -56,7 +56,7 @@ extension SearchResultViewController: UICollectionViewDelegate,UICollectionViewD
         
         let title = titles[indexPath.row]
         
-        cell.configure(with: title.poster_path  ?? "Poster_path erroraa")
+        cell.configure(with: title.poster_path  ?? "Poster_path Error 圖片路徑錯誤")
         
         return cell
     }

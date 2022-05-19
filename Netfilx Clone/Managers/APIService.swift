@@ -13,8 +13,16 @@ enum APIError: Error {
 }
 
 struct Constants {
-    static let API_KEY = "2be61662c9239eeffebf7aec5ef94ef8"
-    static let baseURL = "https://api.themoviedb.org"
+    static let TMDBAPI_KEY = "2be61662c9239eeffebf7aec5ef94ef8"
+    static let TMDBbaseURL = "https://api.themoviedb.org"
+    static let YoutubeDataAPI_KEY = "AIzaSyCxWsUM_Bz0Vpz4dk7pn9UxnCq4LlyPbVI"
+}
+
+struct YoutubeDataRequests {
+    
+}
+
+struct TMDBRequests {
     static let trendingMovie =  "/3/trending/movie/day?api_key="
     static let trendingTV = "/3/trending/tv/day?api_key="
     static let upComing = "/3/movie/upcoming?api_key="
@@ -31,7 +39,7 @@ class APIService {
     
     //開始fetching 資料，將原本的(String)改為Result
     func getTrendingMovies(completion: @escaping (Result<[Title], Error>) -> Void) {
-        guard let url = URL(string: "\(Constants.baseURL)\(Constants.trendingMovie)\(Constants.API_KEY)") else { return }
+        guard let url = URL(string: "\(Constants.TMDBbaseURL)\(TMDBRequests.trendingMovie)\(Constants.TMDBAPI_KEY)") else { return }
         print(url)
         let task = URLSession.shared.dataTask(with: URLRequest(url: url)) { data, _, error in
             guard let safeData = data, error == nil else { return }
@@ -50,7 +58,7 @@ class APIService {
     }
     
     func getTrendingTVs(completion: @escaping (Result<[Title], Error>) -> Void){
-        guard let url = URL(string: "\(Constants.baseURL)\(Constants.trendingTV)\(Constants.API_KEY)") else { return }
+        guard let url = URL(string: "\(Constants.TMDBbaseURL)\(TMDBRequests.trendingTV)\(Constants.TMDBAPI_KEY)") else { return }
         let task = URLSession.shared.dataTask(with: URLRequest(url: url)) { data, _, error in
             guard let safeData = data, error == nil else { return }
             
@@ -66,7 +74,7 @@ class APIService {
     }
     
     func getUpComingMovies(completion: @escaping (Result<[Title], Error>) -> Void) {
-        guard let url = URL(string: "\(Constants.baseURL)\(Constants.upComing)\(Constants.API_KEY)&language=en-US&page=1") else { return }
+        guard let url = URL(string: "\(Constants.TMDBbaseURL)\(TMDBRequests.upComing)\(Constants.TMDBAPI_KEY)&language=en-US&page=1") else { return }
         let task = URLSession.shared.dataTask(with: URLRequest(url: url)) { data, _, error in
             guard let safeData = data, error == nil else { return }
             do {
@@ -80,7 +88,7 @@ class APIService {
     }
     
     func getPopularMovies(completion: @escaping (Result<[Title], Error>) -> Void) {
-        guard let url = URL(string: "\(Constants.baseURL)/3/movie/popular?api_key=\(Constants.API_KEY)&language=en-US&page=1") else { return }
+        guard let url = URL(string: "\(Constants.TMDBbaseURL)/3/movie/popular?api_key=\(Constants.TMDBAPI_KEY)&language=en-US&page=1") else { return }
         let task = URLSession.shared.dataTask(with: URLRequest(url: url)) { data, _, error in
             guard let safeData = data, error == nil else { return }
             
@@ -95,7 +103,7 @@ class APIService {
     }
     
     func getTopRatedMovies(completion: @escaping (Result<[Title],Error>)-> Void) {
-        guard let url = URL(string: "\(Constants.baseURL)/3/movie/top_rated?api_key=\(Constants.API_KEY)&language=en-US&page=1") else {return}
+        guard let url = URL(string: "\(Constants.TMDBbaseURL)/3/movie/top_rated?api_key=\(Constants.TMDBAPI_KEY)&language=en-US&page=1") else {return}
         let task = URLSession.shared.dataTask(with: URLRequest(url: url)) { data, _, error in
             guard let safeData = data, error == nil else {return}
             do {
@@ -109,7 +117,7 @@ class APIService {
     }
     
     func getDiscoverMovies(completion: @escaping (Result<[Title],Error>)-> Void) {
-        guard let url = URL( string: "\(Constants.baseURL)/3/discover/movie?api_key=\(Constants.API_KEY)&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page=1&with_watch_monetization_types=flatrate") else { return }
+        guard let url = URL( string: "\(Constants.TMDBbaseURL)/3/discover/movie?api_key=\(Constants.TMDBAPI_KEY)&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page=1&with_watch_monetization_types=flatrate") else { return }
         
         let task = URLSession.shared.dataTask(with: URLRequest(url: url)) { data, _, error in
             guard let safeData = data, error == nil else {return}
@@ -128,7 +136,7 @@ class APIService {
         //format query 格式化排序
         guard let query = query.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) else {return}
         
-        guard let url = URL( string: "\(Constants.baseURL)/3/search/movie?api_key=\(Constants.API_KEY)&query=\(query)") else { return }
+        guard let url = URL( string: "\(Constants.TMDBbaseURL)/3/search/movie?api_key=\(Constants.TMDBAPI_KEY)&query=\(query)") else { return }
         
         let task = URLSession.shared.dataTask(with: URLRequest(url: url)) { data, _, error in
             guard let safeData = data, error == nil else {return}
