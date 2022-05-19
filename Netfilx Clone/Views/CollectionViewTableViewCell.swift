@@ -11,6 +11,8 @@ class CollectionViewTableViewCell: UITableViewCell {
     
     static let identifier = "CollectionViewTableViewCell"
     
+    private var titles: [Title] = [Title]()
+    
 
     //設定每個cell的placeholder
     private let collectionView: UICollectionView = {
@@ -24,8 +26,8 @@ class CollectionViewTableViewCell: UITableViewCell {
 
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         
-        //註冊collectionView
-        collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "cell")
+        //註冊collectionView，將TitleColletionViewCell傳入
+        collectionView.register(TitleCollectionViewCell.self, forCellWithReuseIdentifier: TitleCollectionViewCell.identifier)
         
         return collectionView
     }()
@@ -51,20 +53,39 @@ class CollectionViewTableViewCell: UITableViewCell {
         collectionView.frame = contentView.bounds
     }
     
+    //依據HomeViewController傳入的title來feed並更新頁面，使用public提供接口給cellforRowAt呼叫
+    public func configure(with titles: [Title]){
+        self.titles = titles
+        
+        DispatchQueue.main.async { [weak self] in
+            self?.collectionView.reloadData()
+        }
+    }
+    
 }
 
 
 extension CollectionViewTableViewCell: UICollectionViewDelegate,UICollectionViewDataSource {
     
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
-        return 10
+        //將cell更新為TitleColletionViewCell，如果失敗就回傳普通的colletionViewCell
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: TitleCollectionViewCell.identifier, for: indexPath) as? TitleCollectionViewCell else { return UICollectionViewCell() }
+        
+        guard let posterPath = titles[indexPath.row].poster_path else {
+            return UICollectionViewCell()
+        }
+        
+        cell.configure(with: posterPath)
+        
+//        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath)
+//        cell.backgroundColor = .green
+        return cell
     }
     
     
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath)
-        cell.backgroundColor = .green
-        return cell
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        
+        return titles.count
     }
 }

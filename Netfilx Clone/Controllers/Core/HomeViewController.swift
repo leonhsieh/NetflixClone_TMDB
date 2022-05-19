@@ -7,6 +7,16 @@
 
 import UIKit
 
+//要fetch的API request
+enum Sections: Int {
+    case TrendingMovies = 0
+    case TrendingTV = 1
+    case Popular = 2
+    case Upcoming = 3
+    case TopRated = 4
+}
+
+
 class HomeViewController: UIViewController {
     
     //將Section的標題內容放在array中
@@ -36,9 +46,7 @@ class HomeViewController: UIViewController {
         let headerView = HeroHeaderUIView(frame: CGRect(x: 0, y: 0, width: view.bounds.width, height: 450))
         
         homeFeedTable.tableHeaderView = headerView
-        
-        fetchData()
-        
+                
     }
     
     //設定TableView的大小與螢幕相同
@@ -72,42 +80,6 @@ class HomeViewController: UIViewController {
         navigationController?.navigationBar.tintColor = .white
     }
     
-    private func fetchData() {
-//        APIService.shared.getTrendingMovies { results in
-//            switch results {
-//            case .success(let movies)://TODO: 這是什麼宣告法？
-//                print(movies)
-//            case .failure(let error):
-//                print(error)
-//            }
-//        }
-        
-//        APIService.shared.getTrendingTVs { results in
-//            switch results {
-//            case .success(let tvs):
-//                print(tvs)
-//            case .failure(let error):
-//                print(error)
-//            }
-//        }
-        
-//        APIService.shared.getUpComingMovies { results in
-//            switch results {
-//            case .success(let movies):
-//                print(movies)
-//            case .failure(let error):
-//                print(error)
-//            }
-//        }
-        
-//        APIService.shared.getPopularMovies { _ in
-//
-//        }
-        
-        APIService.shared.getTopRatedMovies { _ in
-             
-        }
-    }
 }
 
 extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
@@ -123,9 +95,67 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
     
     //設定TableView上面每行cell物件及內容
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        
         guard let cell = tableView.dequeueReusableCell(withIdentifier: CollectionViewTableViewCell.identifier, for: indexPath) as? CollectionViewTableViewCell else {
             return UITableViewCell()
         }
+                
+        //依據section的index數判斷是哪個section，
+        switch indexPath.section {
+            
+        case Sections.TrendingMovies.rawValue:
+            APIService.shared.getTrendingMovies { result in
+                switch result {
+                case .success(let titles):
+                    cell.configure(with: titles)
+                case .failure(let error):
+                    print(error.localizedDescription)
+                }
+            }
+            
+        case Sections.TrendingTV.rawValue:
+            APIService.shared.getTrendingTVs { results in
+                switch results {
+                case .success(let titles):
+                    cell.configure(with: titles)
+                case .failure(let error):
+                    print(error.localizedDescription)
+                }
+            }
+            
+        case Sections.Popular.rawValue:
+            APIService.shared.getPopularMovies { results in
+                switch results {
+                case .success(let titles):
+                    cell.configure(with: titles)
+                case .failure(let error):
+                    print(error.localizedDescription)
+                }
+            }
+        case Sections.Upcoming.rawValue:
+            APIService.shared.getUpComingMovies { results in
+                switch results {
+                case .success(let titles):
+                    cell.configure(with: titles)
+                case .failure(let error):
+                    print(error.localizedDescription)
+                }
+            }
+            
+        case Sections.TopRated.rawValue:
+            APIService.shared.getTopRatedMovies { results in
+                switch results {
+                case .success(let titles):
+                    cell.configure(with: titles)
+                case .failure(let error):
+                    print(error.localizedDescription)
+                }
+            }
+
+        default:
+            return UITableViewCell()
+        }
+                
         return cell
     }
     
