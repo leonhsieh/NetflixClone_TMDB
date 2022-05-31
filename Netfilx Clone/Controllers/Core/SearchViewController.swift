@@ -94,9 +94,44 @@ extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
         return 200
     }
     
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let title = titles[indexPath.row]
+        guard let titleName = title.original_title ?? title.original_name else { return }
+        
+        APIService.shared.getYTMovie(with: titleName) { [weak self] result in
+            
+            switch result {
+            case.success(let videoElement):
+                
+                DispatchQueue.main.async {
+                    let vc = DetailViewController()
+                   vc.configure(with: VideoDetailViewModel(title: titleName, youtubeView: videoElement, titleOverview: title.overview ?? ""))
+                   
+                   self?.navigationController?.pushViewController(vc, animated: true)
+                }
+
+                
+            case.failure(let error):
+                print(error.localizedDescription)
+            }
+        }
+    }
+    
 }
 
-extension SearchViewController: UISearchResultsUpdating {
+extension SearchViewController: UISearchResultsUpdating, SearchResultViewControllerDelegate {
+    
+    func searchResultViewControllerDidTapItem(_ viewModel: VideoDetailViewModel) {
+        
+        DispatchQueue.main.async { [weak self] in
+            let vc = DetailViewController()
+            vc.configure(with: viewModel)
+            self?.navigationController?.pushViewController(vc, animated: true)
+        }
+        
+
+    }
+    
     
     func updateSearchResults(for searchController: UISearchController) {
         let searchBar = searchController.searchBar
@@ -105,6 +140,8 @@ extension SearchViewController: UISearchResultsUpdating {
               !query.trimmingCharacters(in: .whitespaces).isEmpty,//以空白鍵作為單字間隔符號，searchBar內有字才搜尋
               query.trimmingCharacters(in: .whitespaces).count >= 3,//三個字母以上才會執行搜尋，減低server壓力
               let resultsController = searchController.searchResultsController as? SearchResultViewController else {return}
+        
+        resultsController.delegate = self
         
         APIService.shared.search(with: query) { result in
             DispatchQueue.main.async {

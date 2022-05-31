@@ -39,7 +39,7 @@ class DetailViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = .black
         view.addSubview(videoPlayView)
         view.addSubview(titleLabel)
         view.addSubview(overviewLabel)

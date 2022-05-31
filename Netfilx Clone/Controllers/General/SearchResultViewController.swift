@@ -7,7 +7,13 @@
 
 import UIKit
 
+protocol SearchResultViewControllerDelegate: AnyObject {
+    func searchResultViewControllerDidTapItem(_ viewModel: VideoDetailViewModel)
+}
+
 class SearchResultViewController: UIViewController {
+    
+    weak var delegate: SearchResultViewControllerDelegate?
     
     //使用public，讓SearchViewControll能取用titles，
     public var titles: [Title] = [Title]()
@@ -59,5 +65,25 @@ extension SearchResultViewController: UICollectionViewDelegate,UICollectionViewD
         cell.configure(with: title.poster_path  ?? "Poster_path Error 圖片路徑錯誤")
         
         return cell
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        
+        let title = titles[indexPath.row]
+        let titleName = title.original_title ?? ""
+        
+        //
+        APIService.shared.getYTMovie(with: titleName) { [weak self] result in
+            
+            switch result {
+            case.success(let videoElement):
+                self?.delegate?.searchResultViewControllerDidTapItem(VideoDetailViewModel(title: titleName, youtubeView: videoElement, titleOverview: title.overview ?? ""))
+                
+            case.failure(let error):
+                print(error.localizedDescription)
+            }
+        }
+        
+
     }
 }

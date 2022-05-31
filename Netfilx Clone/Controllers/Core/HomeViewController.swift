@@ -5,6 +5,8 @@
 //  Created by leon on 2022/4/14.
 //
 
+//TODO: 改善重複代碼：getYTMovie重複出現在SearchResultVC、UpcomingVC、SearchVC
+
 import UIKit
 
 //要fetch的API request
@@ -18,6 +20,12 @@ enum Sections: Int {
 
 
 class HomeViewController: UIViewController {
+    
+    private var randomTrendingMovie: Title?//把Heroheader改為隨機選擇熱門影片，設定為optional讓他能是nil
+    private var headerView: HeroHeaderUIView? //在viewDidLoad外面也能控制headerView
+    
+    
+    
     
     //將Section的標題內容放在array中
     let sectionTitles: [String] = ["大家都在看的電影","熱門影集","現正熱播","即將上映" ,"最高評分"]
@@ -43,9 +51,11 @@ class HomeViewController: UIViewController {
         configureNavbar()
 
         //設定tableHeader尺寸
-        let headerView = HeroHeaderUIView(frame: CGRect(x: 0, y: 0, width: view.bounds.width, height: 450))
+        headerView = HeroHeaderUIView(frame: CGRect(x: 0, y: 0, width: view.bounds.width, height: 450))
         
         homeFeedTable.tableHeaderView = headerView
+        
+        configureHeroHeaderView()
         
     }
     
@@ -54,12 +64,28 @@ class HomeViewController: UIViewController {
         super.viewDidLayoutSubviews()
         homeFeedTable.frame = view.bounds
     }
+    
+    private func configureHeroHeaderView() {
+                
+        //新增一個對server的GET request，取得trending movie並隨機化
+        APIService.shared.getTrendingMovies { result in
+            switch result {
+            case .success(let titles):
+                let selectedTitle = titles.randomElement()
+                self.randomTrendingMovie = selectedTitle//要加[weak self]
+                self.headerView?.configure(with: TitleViewModel(titleName: selectedTitle?.original_title ?? "", posterURL: selectedTitle?.poster_path ?? ""))
+            case.failure(let error):
+                print(error.localizedDescription)
+            }
+        }
+    }
 
 //    MARK: 設定NavBar
     private func configureNavbar(){
         var image = UIImage(named: "netflixLogo")//為了能設定圖片的renderMode，將容器設為變數
         
         image = image?.withRenderingMode(.alwaysOriginal)//強迫iOS使用原本的圖片
+        
         
         navigationItem.leftBarButtonItem = UIBarButtonItem(image: image,
                                                            style: .done,
@@ -78,6 +104,7 @@ class HomeViewController: UIViewController {
         ]
         
         navigationController?.navigationBar.tintColor = .white
+        navigationController?.navigationBar.barTintColor = .white
     }
     
 }

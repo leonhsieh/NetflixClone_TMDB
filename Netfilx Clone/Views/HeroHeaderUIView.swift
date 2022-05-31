@@ -20,6 +20,7 @@ class HeroHeaderUIView: UIView {
 //        addSubview(addToListButton)
         applyConstraints()
     }
+    
     //0:同時避免錯誤
     required init?(coder: NSCoder) {
         fatalError()
@@ -113,10 +114,16 @@ class HeroHeaderUIView: UIView {
         ]
         */
         
-        
         //啟動約束
         NSLayoutConstraint.activate(downloadButtonConstraint)
         NSLayoutConstraint.activate(playButtonConstraint)
+    }
+    
+    //使用public，讓configure可以從Controller調用
+    public func configure(with model: TitleViewModel) {
+        guard let url = URL(string: "https://image.tmdb.org/t/p/w500/\(model.posterURL)") else { return }
+        
+        heroImageView.sd_setImage(with: url)
     }
     
     //使用laoutSubView取代約束系統
