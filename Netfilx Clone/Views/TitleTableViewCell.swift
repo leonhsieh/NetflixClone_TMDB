@@ -21,7 +21,7 @@ class TitleTableViewCell: UITableViewCell {
 
     private let titleLabel: UILabel = {
         let label = UILabel()
-        //使用content autolayout
+        //使用titleOverview autolayout
         label.translatesAutoresizingMaskIntoConstraints = false
         
         return label

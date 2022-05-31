@@ -33,7 +33,7 @@ class TitleCollectionViewCell: UICollectionViewCell {
     }
     
     
-    //讓subview 符合content view外框即可
+    //讓subview 符合titleOverview view外框即可
     override func layoutSubviews() {
         super.layoutSubviews()
         posterImageView.frame = contentView.bounds

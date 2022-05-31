@@ -7,12 +7,18 @@
 
 import UIKit
 
+protocol ColletionViewTableViewCellDelegate: AnyObject {
+    func didTapCell(_ cell: CollectionViewTableViewCell, viewModel: VideoDetailViewModel)
+}
+
+
 class CollectionViewTableViewCell: UITableViewCell {
     
     static let identifier = "CollectionViewTableViewCell"
     
-    private var titles: [Title] = [Title]()
+    weak var delegate: ColletionViewTableViewCellDelegate?
     
+    private var titles: [Title] = [Title]()
 
     //設定每個cell的placeholder
     private let collectionView: UICollectionView = {
@@ -87,5 +93,32 @@ extension CollectionViewTableViewCell: UICollectionViewDelegate,UICollectionView
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         
         return titles.count
+    }
+    
+    //加入didSelectItemAt作為測試request影片用
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        collectionView.deselectItem(at: indexPath, animated: true)
+        
+        //把用戶選取的的title名稱，拿來搜尋影片
+        let title = titles[indexPath.row]
+        
+        guard let titleName = title.original_title ?? title.title else {return}
+        
+        APIService.shared.getYTMovie(with: titleName + "trailer") { [weak self] results in
+            switch results {
+            case .success(let videoElement):
+                print(videoElement.id)
+                                
+                guard let titleOverView = title.overview else { return }
+                guard let strongSelf = self else {return}
+                
+                let  viewModel = VideoDetailViewModel(title: titleName, youtubeView: videoElement, titleOverview: titleOverView)
+                //成功得到影片位址後，執行
+                self?.delegate?.didTapCell(strongSelf, viewModel: viewModel)
+                
+            case .failure(let error):
+                print(error.localizedDescription)
+            }
+        }
     }
 }

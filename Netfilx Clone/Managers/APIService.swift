@@ -16,10 +16,12 @@ struct Constants {
     static let TMDBAPI_KEY = "2be61662c9239eeffebf7aec5ef94ef8"
     static let TMDBbaseURL = "https://api.themoviedb.org"
     static let YoutubeDataAPI_KEY = "AIzaSyCxWsUM_Bz0Vpz4dk7pn9UxnCq4LlyPbVI"
+    static let YoutubeDataBaseURL = "https://youtube.googleapis.com/youtube/v3"
+
 }
 
-struct YoutubeDataRequests {
-    
+struct YoutubeRequests {
+    static let YTsearch = "/search?q="
 }
 
 struct TMDBRequests {
@@ -35,12 +37,12 @@ struct TMDBRequests {
 }
 
 class APIService {
+    
     static let shared = APIService()//使用share方便從外部呼叫APIService()
     
     //開始fetching 資料，將原本的(String)改為Result
     func getTrendingMovies(completion: @escaping (Result<[Title], Error>) -> Void) {
         guard let url = URL(string: "\(Constants.TMDBbaseURL)\(TMDBRequests.trendingMovie)\(Constants.TMDBAPI_KEY)") else { return }
-        print(url)
         let task = URLSession.shared.dataTask(with: URLRequest(url: url)) { data, _, error in
             guard let safeData = data, error == nil else { return }
             
@@ -63,7 +65,7 @@ class APIService {
             guard let safeData = data, error == nil else { return }
             
             do {
-                //                let result = try JSONSerialization.jsonObject(with: safeData, options: .fragmentsAllowed)
+                //let result = try JSONSerialization.jsonObject(with: safeData, options: .fragmentsAllowed)
                 let results = try JSONDecoder().decode(TrendingTitleResponse.self, from: safeData)
                 completion(.success(results.results))
             } catch {
@@ -150,4 +152,27 @@ class APIService {
         task.resume()
     }
     
+    //TODO:
+    //如何取得預告片：TMDB影片的<id> -> GET videos <movie_id> -> 取得"type"="Trailer"的key，或影片的"name"包含"Official Trailer "
+    
+    func getYTMovie(with query: String, completion: @escaping (Result<VideoElement,Error>)-> Void) {
+        
+        guard let query = query.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) else {return}//取代原本yt request中的%20
+        
+        guard let url = URL(string: "\(Constants.YoutubeDataBaseURL)\(YoutubeRequests.YTsearch)\(query)&key=\(Constants.YoutubeDataAPI_KEY)") else { return}
+        
+        let task = URLSession.shared.dataTask(with: URLRequest(url: url)) { data, _, error in
+            guard let safeData = data, error == nil else {return}
+            do {
+                let result = try JSONDecoder().decode(YoutubeSearchResponse.self, from: safeData)
+                completion(.success(result.items[0]))
+
+            }catch{
+                completion(.failure(error))
+            }
+        }
+        task.resume()
+    }
 }
+//https://youtube.googleapis.com/youtube/v3/search?q=Harry%20Potter&key=[YOUR_API_KEY]
+

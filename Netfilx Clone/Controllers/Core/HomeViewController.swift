@@ -46,7 +46,7 @@ class HomeViewController: UIViewController {
         let headerView = HeroHeaderUIView(frame: CGRect(x: 0, y: 0, width: view.bounds.width, height: 450))
         
         homeFeedTable.tableHeaderView = headerView
-                
+        
     }
     
     //設定TableView的大小與螢幕相同
@@ -99,6 +99,8 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: CollectionViewTableViewCell.identifier, for: indexPath) as? CollectionViewTableViewCell else {
             return UITableViewCell()
         }
+        
+        cell.delegate = self
                 
         //依據section的index數判斷是哪個section，
         switch indexPath.section {
@@ -178,7 +180,6 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
                                          height: header.bounds.height)
         header.textLabel?.textColor = .white
         header.textLabel?.text = header.textLabel?.text?.capitalizeFistLetter()
-
     }
     
     // NOTE: 雖然viewForHeaderInSection就能完成label的設定工作，但這比較適合沒有牽涉到API或networking的label內容
@@ -198,7 +199,6 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
     }
      */
     
-    
     //回傳各Section的標題
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         return sectionTitles[section]
@@ -213,8 +213,16 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
         
         //設定navBar隨著頁面往下捲動，當contenView碰到navBar時，朝上移動
         navigationController?.navigationBar.transform = .init(translationX: 0, y: min(0, -offset))
-        
     }
-    
-    
+}
+
+extension HomeViewController: ColletionViewTableViewCellDelegate {
+    func didTapCell(_ cell: CollectionViewTableViewCell, viewModel: VideoDetailViewModel) {
+        
+        DispatchQueue.main.async {
+            let vc = DetailViewController()
+            vc.configure(with: viewModel)
+            self.navigationController?.pushViewController(vc, animated: true)
+        }
+    }
 }

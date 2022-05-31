@@ -63,8 +63,7 @@ extension UpcomingViewController: UITableViewDelegate,UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: TitleTableViewCell.identifier,
-                                                       for: indexPath) as? TitleTableViewCell else {return UITableViewCell() }
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: TitleTableViewCell.identifier,for: indexPath) as? TitleTableViewCell else {return UITableViewCell() }
         
         let title = titles[indexPath.row]
         cell.configure(with: TitleViewModel(titleName: title.original_title ?? "Unknow Title name" ,
