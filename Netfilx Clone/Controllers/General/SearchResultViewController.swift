@@ -46,6 +46,20 @@ class SearchResultViewController: UIViewController {
         
         searchResultsColletionView.frame = view.bounds
     }
+    private func downloadTitleAt(indexPath: IndexPath) {
+        
+        DataPersistanceManager.shared.downloadTitleWith(model: titles[indexPath.row]) { result in
+            switch result{
+            case.success():
+                print("Download to database")
+                NotificationCenter.default.post(name: NSNotification.Name("downloaded"), object: nil)
+            case.failure(let error):
+                print(error.localizedDescription)
+            }
+        }
+                
+        print("Downloading\(String(describing: titles[indexPath.row].original_title))")
+    }
     
 }
 
@@ -85,5 +99,19 @@ extension SearchResultViewController: UICollectionViewDelegate,UICollectionViewD
         }
         
 
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
+        
+        let config = UIContextMenuConfiguration(
+            identifier: nil,
+            previewProvider: nil) {[weak self] _ in
+                let addToCollectionAction = UIAction(title: "加入收藏",subtitle: nil,image: nil,identifier: nil,discoverabilityTitle: nil,state: .off) { _ in
+                    self?.downloadTitleAt(indexPath: indexPath)
+//                print("Download Tapped")
+            }
+            return UIMenu(title: "", image: nil, identifier: nil, options: .displayInline, children: [addToCollectionAction])
+        }
+        return config
     }
 }

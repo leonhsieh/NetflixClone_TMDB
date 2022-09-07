@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SDWebImage
 
 class TitleTableViewCell: UITableViewCell {
     
@@ -23,6 +24,7 @@ class TitleTableViewCell: UITableViewCell {
         let label = UILabel()
         //使用titleOverview autolayout
         label.translatesAutoresizingMaskIntoConstraints = false
+        label.lineBreakStrategy = .standard
         
         return label
     }()
@@ -62,8 +64,10 @@ class TitleTableViewCell: UITableViewCell {
         ]
         
         let titleLabelConstraints = [
-            titleLabel.leadingAnchor.constraint(equalTo: titlePosterUIImageView.trailingAnchor,constant: 20),
-            titleLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor)
+            titleLabel.leadingAnchor.constraint(equalTo: titlePosterUIImageView.trailingAnchor,constant: 10),
+            titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 20),
+            titleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10)
+//            titleLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor)
         ]
         
         let playTitleButtonConstraints = [
@@ -80,6 +84,8 @@ class TitleTableViewCell: UITableViewCell {
     public func configure(with model: TitleViewModel){
                 
         guard let url = URL(string: "https://image.tmdb.org/t/p/w500/\(model.posterURL)") else { return }
+        
+//        titlePosterUIImageView.backgroundColor = .green
 
         titlePosterUIImageView.sd_setImage(with: url, completed: nil)
         titleLabel.text = model.titleName

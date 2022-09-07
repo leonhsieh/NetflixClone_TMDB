@@ -68,8 +68,20 @@ class CollectionViewTableViewCell: UITableViewCell {
         }
     }
     
-    private func downloadTitleAt(indexPath: IndexPath) {
-        print("Downloading\(titles[indexPath.row].original_title)")
+    private func downloadTitleAt(indexPath: IndexPath) {//使用Notification center讓CoreData知道下載新資料
+        
+        DataPersistanceManager.shared.downloadTitleWith(model: titles[indexPath.row]) { result in
+            switch result{
+            case.success():
+                print("Download to database")
+                //將賦予Name與sender的notification廣播到整個APP中，並在DownloadVC中使用observer監聽
+                NotificationCenter.default.post(name: NSNotification.Name("downloaded"), object: nil)
+            case.failure(let error):
+                print(error.localizedDescription)
+            }
+        }
+                
+        print("Downloading\(String(describing: titles[indexPath.row].original_title))")
     }
     
 }
@@ -88,8 +100,6 @@ extension CollectionViewTableViewCell: UICollectionViewDelegate,UICollectionView
         
         cell.configure(with: posterPath)
         
-//        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath)
-//        cell.backgroundColor = .green
         return cell
     }
     
@@ -126,18 +136,17 @@ extension CollectionViewTableViewCell: UICollectionViewDelegate,UICollectionView
         }
     }
     
-    //For downloading Titles
+    //加入收藏清單
     func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
         
         let config = UIContextMenuConfiguration(
             identifier: nil,
             previewProvider: nil) {[weak self] _ in
-                let downloadAction = UIAction(title: "Download",subtitle: nil,image: nil,identifier: nil,discoverabilityTitle: nil,state: .off) { _ in
+                let addToCollectionAction = UIAction(title: "加入收藏",subtitle: nil,image: nil,identifier: nil,discoverabilityTitle: nil,state: .off) { _ in
                     self?.downloadTitleAt(indexPath: indexPath)
 //                print("Download Tapped")
             }
-            return UIMenu(title: "", image: nil, identifier: nil, options: .displayInline, children: [downloadAction])
-            
+            return UIMenu(title: "", image: nil, identifier: nil, options: .displayInline, children: [addToCollectionAction])
         }
         return config
     }

@@ -1,5 +1,5 @@
 //
-//  UpcomingViewController.swift
+//  DownLoadViewController.swift
 //  Netfilx Clone
 //
 //  Created by leon on 2022/4/14.
@@ -7,11 +7,11 @@
 
 import UIKit
 
-class UpcomingViewController: UIViewController {
+class MyCollectionViewController: UIViewController {
     
-    private var titles:[Title] = [Title]()
+    private var titles:[TitleItem] = [TitleItem]()//改用TItleItem，這樣可以直接從DB中直接fetch進來
     
-    private let upcomingTable: UITableView = {
+    private let myCollectionTable: UITableView = {
         let table = UITableView()
         table.register(TitleTableViewCell.self,
                        forCellReuseIdentifier: TitleTableViewCell.identifier)
@@ -21,42 +21,48 @@ class UpcomingViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        title = "即將上映"
+        title = "收藏"
         view.backgroundColor = .systemBackground
         
         navigationController?.navigationBar.prefersLargeTitles = true
         navigationItem.largeTitleDisplayMode = .always
         navigationController?.navigationBar.tintColor = .white
-        
-        view.addSubview(upcomingTable)
-        upcomingTable.delegate = self
-        upcomingTable.dataSource = self
-        fetchUpcoming()
+        myCollectionTable.delegate = self
+        myCollectionTable.dataSource = self
+        fetchLocalStorageForDownloads()
+        view.addSubview(myCollectionTable)
+        addNotificationCenter()
+
     }
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        upcomingTable.frame = view.bounds
+        myCollectionTable.frame = view.bounds
     }
     
-    private func fetchUpcoming() {
-        APIService.shared.getUpComingMovies { [weak self] result in
+    private func addNotificationCenter() {
+        NotificationCenter.default.addObserver(forName: NSNotification.Name("downloaded"), object: nil, queue: nil) { _ in
+            self.fetchLocalStorageForDownloads()
+        }    }
+    
+    private func fetchLocalStorageForDownloads(){//在這裡呼叫DataPersistance Method
+        DataPersistanceManager.shared.fetchTitleItemFromDB { [weak self] result in//因為成功的話會得到一個array，加入weak self 避免記憶體洩漏
             switch result {
-            case .success(let titles):
-                self?.titles = titles
-                
+            case.success(let results):
+                self?.titles = results
                 DispatchQueue.main.async {
-                    self?.upcomingTable.reloadData()
+                    self?.myCollectionTable.reloadData()//取得DB中的資料後要reload
+
                 }
                 
-            case .failure(let error):
+            case.failure(let error):
                 print(error.localizedDescription)
             }
         }
     }
 }
 
-extension UpcomingViewController: UITableViewDelegate,UITableViewDataSource {
+extension MyCollectionViewController: UITableViewDelegate,UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return titles.count
@@ -75,6 +81,26 @@ extension UpcomingViewController: UITableViewDelegate,UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 200
+    }
+    
+    //使用commit來刪除特定的row
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete {
+            
+            DispatchQueue.main.async {
+                DataPersistanceManager.shared.deleteTitleItemFromDB(model: self.titles[indexPath.row]) { results in
+
+                    switch results {
+                    case .success():
+                        print("成功從DB中刪除")
+                    case .failure(let error):
+                        print(error.localizedDescription)
+                    }
+                    self.titles.remove(at: indexPath.row)
+                    tableView.deleteRows(at: [indexPath], with: .fade)
+                }
+            }
+        }
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {

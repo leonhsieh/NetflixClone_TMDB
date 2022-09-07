@@ -18,18 +18,13 @@ enum Sections: Int {
     case TopRated = 4
 }
 
-
 class HomeViewController: UIViewController {
     
     private var randomTrendingMovie: Title?//把Heroheader改為隨機選擇熱門影片，設定為optional讓他能是nil
     private var headerView: HeroHeaderUIView? //在viewDidLoad外面也能控制headerView
     
-    
-    
-    
     //將Section的標題內容放在array中
     let sectionTitles: [String] = ["大家都在看的電影","熱門影集","現正熱播","即將上映" ,"最高評分"]
-    
     
 //    使用匿名Closure Pattern
     private let homeFeedTable: UITableView = {
@@ -41,8 +36,9 @@ class HomeViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+//        overrideUserInterfaceStyle = .dark
         
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = .black
         view.addSubview(homeFeedTable)
         
         homeFeedTable.delegate = self
@@ -82,15 +78,13 @@ class HomeViewController: UIViewController {
 
 //    MARK: 設定NavBar
     private func configureNavbar(){
-        var image = UIImage(named: "netflixLogo")//為了能設定圖片的renderMode，將容器設為變數
+        var image = UIImage(named: "movieFanLogo")//為了能設定圖片的renderMode，將容器設為變數
         
         image = image?.withRenderingMode(.alwaysOriginal)//強迫iOS使用原本的圖片
-        
-        
-        navigationItem.leftBarButtonItem = UIBarButtonItem(image: image,
-                                                           style: .done,
-                                                           target: self,
-                                                           action: nil)
+//        navigationItem.leftBarButtonItem = UIBarButtonItem(image: image,
+//                                                           style: .done,
+//                                                           target: self,
+//                                                           action: nil)
 
         navigationItem.rightBarButtonItems = [
             UIBarButtonItem(image: UIImage(systemName: "person.crop.circle"),
@@ -104,9 +98,7 @@ class HomeViewController: UIViewController {
         ]
         
         navigationController?.navigationBar.tintColor = .white
-        navigationController?.navigationBar.barTintColor = .white
     }
-    
 }
 
 extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
@@ -209,22 +201,7 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
         header.textLabel?.text = header.textLabel?.text?.capitalizeFistLetter()
     }
     
-    // NOTE: 雖然viewForHeaderInSection就能完成label的設定工作，但這比較適合沒有牽涉到API或networking的label內容
-    /*
-    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        let header = UIView()
-        let headerLabel = UILabel(frame: CGRect(x: header.bounds.origin.x + 20, y: header.bounds.origin.y, width: 100, height: header.bounds.height))
-        
-        headerLabel.font = .systemFont(ofSize: 18, weight: .semibold)
-        headerLabel.text = sectionTitles[section]
-        headerLabel.textColor = .white
-        headerLabel.sizeToFit()
-        
-        header.addSubview(headerLabel)
-//        header.backgroundColor = .red
-        return header
-    }
-     */
+    // NOTE: 雖然viewForHeaderInSection就能完成label的設定工作，但這比較適合沒有牽涉到networking的label內容
     
     //回傳各Section的標題
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {

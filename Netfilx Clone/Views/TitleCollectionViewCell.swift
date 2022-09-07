@@ -45,12 +45,6 @@ class TitleCollectionViewCell: UICollectionViewCell {
         guard let url = URL(string: "https://image.tmdb.org/t/p/w500/\(model)") else {return}
         posterImageView.sd_setImage(with: url, completed: nil)
         
-        /*
-        print(model)
-        //poster的url位址由model傳入，轉為URL位址後提供給SDWebimage
-        guard let url = URL(string: model) else { return }
-        posterImageView.sd_setImage(with: url, completed: nil)
-         */
     }
     
 }

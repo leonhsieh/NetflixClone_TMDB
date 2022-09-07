@@ -15,8 +15,8 @@ class HeroHeaderUIView: UIView {
         addSubview(heroImageView)
         
         addGradient()
-        addSubview(playButton)
-        addSubview(downloadButton)
+//        addSubview(playButton)
+//        addSubview(downloadButton)
 //        addSubview(addToListButton)
         applyConstraints()
     }
@@ -115,8 +115,8 @@ class HeroHeaderUIView: UIView {
         */
         
         //啟動約束
-        NSLayoutConstraint.activate(downloadButtonConstraint)
-        NSLayoutConstraint.activate(playButtonConstraint)
+//        NSLayoutConstraint.activate(downloadButtonConstraint)
+//        NSLayoutConstraint.activate(playButtonConstraint)
     }
     
     //使用public，讓configure可以從Controller調用

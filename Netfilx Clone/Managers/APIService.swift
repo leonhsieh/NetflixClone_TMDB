@@ -43,12 +43,14 @@ class APIService {
     //開始fetching 資料，將原本的(String)改為Result
     func getTrendingMovies(completion: @escaping (Result<[Title], Error>) -> Void) {
         guard let url = URL(string: "\(Constants.TMDBbaseURL)\(TMDBRequests.trendingMovie)\(Constants.TMDBAPI_KEY)") else { return }
+        
         let task = URLSession.shared.dataTask(with: URLRequest(url: url)) { data, _, error in
             guard let safeData = data, error == nil else { return }
             
             do{
                 //JSONSerialization僅作測試用API連線用
 //                let result = try JSONSerialization.jsonObject(with: safeData, options: .fragmentsAllowed)
+//                print(result)
                 
                 let results = try JSONDecoder().decode(TrendingTitleResponse.self, from: safeData)
                 completion(.success(results.results))
@@ -65,7 +67,6 @@ class APIService {
             guard let safeData = data, error == nil else { return }
             
             do {
-                //let result = try JSONSerialization.jsonObject(with: safeData, options: .fragmentsAllowed)
                 let results = try JSONDecoder().decode(TrendingTitleResponse.self, from: safeData)
                 completion(.success(results.results))
             } catch {
@@ -76,17 +77,24 @@ class APIService {
     }
     
     func getUpComingMovies(completion: @escaping (Result<[Title], Error>) -> Void) {
+        
         guard let url = URL(string: "\(Constants.TMDBbaseURL)\(TMDBRequests.upComing)\(Constants.TMDBAPI_KEY)&language=en-US&page=1") else { return }
-        let task = URLSession.shared.dataTask(with: URLRequest(url: url)) { data, _, error in
-            guard let safeData = data, error == nil else { return }
-            do {
-                let results = try JSONDecoder().decode(TrendingTitleResponse.self, from: safeData)
-                completion(.success(results.results))
-            } catch {
-                completion(.failure(APIError.failedToGetData))
+        
+        
+        DispatchQueue.main.async {
+            let task = URLSession.shared.dataTask(with: URLRequest(url: url)) { data, _, error in
+                guard let safeData = data, error == nil else { return }
+                do {
+                    let results = try JSONDecoder().decode(TrendingTitleResponse.self, from: safeData)
+                    completion(.success(results.results))
+                } catch {
+                    completion(.failure(APIError.failedToGetData))
+                }
             }
+            task.resume()
         }
-        task.resume()
+        
+
     }
     
     func getPopularMovies(completion: @escaping (Result<[Title], Error>) -> Void) {
